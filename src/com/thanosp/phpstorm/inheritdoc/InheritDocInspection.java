@@ -23,11 +23,6 @@ public class InheritDocInspection extends PhpInspection {
     public boolean CHECK_CLASS = true;
     public boolean CHECK_METHOD = true;
 
-    /**
-     * The type of highlight to use for the node with the inheritDoc
-     */
-    private ProblemHighlightType highlightType = ProblemHighlightType.INFORMATION;
-
     private void checkElement(@NotNull PhpNamedElement namedElement, @NotNull ProblemsHolder holder) {
         if (namedElement.getDocComment() == null) {
             return;
