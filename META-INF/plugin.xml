@@ -2,7 +2,7 @@
   <id>com.thanosp.phpstorm.inheritdoc</id>
   <name>PHP inheritDoc purger</name>
   <version>1.0</version>
-  <vendor email="support@yourcompany.com" url="http://www.yourcompany.com">YourCompany</vendor>
+  <vendor email="zinbiel@gmail.com" url="http://www.thanosp.com">Thanosp</vendor>
 
   <description><![CDATA[
       Purges PHP inheritDoc docblocks in favor of the actual text
@@ -24,7 +24,16 @@
   <depends>com.jetbrains.php</depends>
 
   <extensions defaultExtensionNs="com.intellij">
-    <!-- Add your extensions here -->
+      <localInspection groupPath="PHP"
+                       shortName="InheritDocInspection"
+                       displayName="InheritDoc text"
+                       groupName="DocBlock"
+                       enabledByDefault="true" level="ERROR"
+                       implementationClass="com.thanosp.phpstorm.inheritdoc.InheritDocInspection"/>
+      <intentionAction>
+          <className>com.thanosp.phpstorm.inheritdoc.InheritDocIntention</className>
+          <category>DocBlock</category>
+      </intentionAction>
   </extensions>
 
   <application-components>
@@ -34,13 +43,5 @@
   <project-components>
     <!-- Add your project components here -->
   </project-components>
-
-  <actions>
-    <action id="com.thanosp.phpstorm.inheritdoc.FixInheritDoc" class="com.thanosp.phpstorm.inheritdoc.FixInheritDoc"
-            text="Dat InheritDoc..."
-            description="Replaces inheritdoc annotations with the doc from the supermember">
-      <add-to-group group-id="GenerateGroup" anchor="first"/>
-    </action>
-  </actions>
 
 </idea-plugin>

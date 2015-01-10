@@ -1,14 +1,6 @@
 package com.thanosp.phpstorm.inheritdoc;
 
-import com.intellij.openapi.actionSystem.AnAction;
-import com.intellij.openapi.actionSystem.AnActionEvent;
-import com.intellij.openapi.actionSystem.LangDataKeys;
-import com.intellij.openapi.actionSystem.PlatformDataKeys;
 import com.intellij.openapi.command.WriteCommandAction;
-import com.intellij.openapi.editor.Editor;
-import com.intellij.psi.PsiElement;
-import com.intellij.psi.PsiFile;
-import com.intellij.psi.util.PsiTreeUtil;
 import com.jetbrains.php.PhpClassHierarchyUtils;
 import com.jetbrains.php.lang.documentation.phpdoc.psi.PhpDocComment;
 import com.jetbrains.php.lang.psi.PhpCodeEditUtil;
@@ -17,15 +9,13 @@ import com.jetbrains.php.lang.psi.elements.Method;
 import com.jetbrains.php.lang.psi.elements.PhpClass;
 import com.jetbrains.php.lang.psi.elements.PhpClassMember;
 import com.jetbrains.php.lang.psi.elements.PhpNamedElement;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 
-public class FixInheritDoc extends AnAction {
-    public void actionPerformed(@NotNull AnActionEvent e)
-    {
-        final PhpNamedElement phpNamedElement = getParentPsiFromEvent(e);
+public class InheritDocUtil {
 
+    public static void fixInheritDocForNamedElement(final PhpNamedElement phpNamedElement)
+    {
         // no named parent or not doc block
         if (phpNamedElement == null || phpNamedElement.getDocComment() == null) {
             return;
@@ -78,39 +68,5 @@ public class FixInheritDoc extends AnAction {
 
             }
         }.execute();
-    }
-
-    @Override
-    public void update(@NotNull AnActionEvent e)
-    {
-        PhpNamedElement phpNamedElement = this.getParentPsiFromEvent(e);
-
-        // no named parent or not doc block
-        if (phpNamedElement == null || phpNamedElement.getDocComment() == null) {
-            e.getPresentation().setEnabled(false);
-            return;
-        }
-
-        // no inheritDoc
-        if (! phpNamedElement.getDocComment().hasInheritDocTag()) {
-            e.getPresentation().setEnabled(false);
-            return;
-        }
-
-        e.getPresentation().setEnabled(true);
-    }
-
-    public PhpNamedElement getParentPsiFromEvent(@NotNull AnActionEvent e)
-    {
-        PsiFile file = e.getData(LangDataKeys.PSI_FILE);
-        Editor editor = e.getData(PlatformDataKeys.EDITOR);
-
-        if (file == null || editor == null) {
-            //e.getPresentation().setEnabled(false);
-            return null;
-        }
-        PsiElement at = file.findElementAt(editor.getCaretModel().getOffset());
-
-        return PsiTreeUtil.getParentOfType(at, PhpNamedElement.class);
     }
 }
