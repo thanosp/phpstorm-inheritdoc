@@ -1,7 +1,7 @@
 <idea-plugin version="2">
   <id>com.thanosp.phpstorm.inheritdoc</id>
   <name>PHP inheritDoc purger</name>
-  <version>1.0</version>
+  <version>1.1</version>
   <vendor email="zinbiel@gmail.com" url="http://www.thanosp.com">Thanosp</vendor>
 
   <description><![CDATA[
@@ -22,6 +22,7 @@
        on how to target different products -->
   <!-- uncomment to enable plugin in all products-->
   <depends>com.jetbrains.php</depends>
+  <depends>com.intellij.modules.platform</depends>
 
   <extensions defaultExtensionNs="com.intellij">
       <localInspection groupPath="PHP"
