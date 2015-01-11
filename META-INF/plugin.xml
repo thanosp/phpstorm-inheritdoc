@@ -32,7 +32,7 @@
                        implementationClass="com.thanosp.phpstorm.inheritdoc.InheritDocInspection"/>
       <intentionAction>
           <className>com.thanosp.phpstorm.inheritdoc.InheritDocIntention</className>
-          <category>DocBlock</category>
+          <category>PHPDoc</category>
       </intentionAction>
   </extensions>
 

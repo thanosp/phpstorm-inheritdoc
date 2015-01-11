@@ -11,14 +11,14 @@ import org.jetbrains.annotations.NotNull;
 
 public class InheritDocIntention extends PsiElementBaseIntentionAction {
     @Override
-    public void invoke(@NotNull Project project, Editor editor, @NotNull PsiElement psiElement) throws IncorrectOperationException {
+    public void invoke(Project project, Editor editor, PsiElement psiElement) throws IncorrectOperationException {
 
         final PhpNamedElement phpNamedElement = PsiTreeUtil.getParentOfType(psiElement, PhpNamedElement.class);
         InheritDocUtil.fixInheritDocForNamedElement(phpNamedElement);
     }
 
     @Override
-    public boolean isAvailable(@NotNull Project project, Editor editor, @NotNull PsiElement psiElement) {
+    public boolean isAvailable(Project project, Editor editor, PsiElement psiElement) {
         PhpNamedElement phpNamedElement = PsiTreeUtil.getParentOfType(psiElement, PhpNamedElement.class);
         if (null == phpNamedElement || phpNamedElement.getDocComment() == null) {
             return false;
@@ -30,6 +30,6 @@ public class InheritDocIntention extends PsiElementBaseIntentionAction {
     @NotNull
     @Override
     public String getFamilyName() {
-        return "DocBlock";
+        return "PHPDoc";
     }
 }

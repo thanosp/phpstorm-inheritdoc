@@ -18,7 +18,7 @@ public class InheritDocQuickFix implements LocalQuickFix {
     @NotNull
     @Override
     public String getFamilyName() {
-        return this.getName();
+        return "PHPDoc";
     }
 
     @Override
