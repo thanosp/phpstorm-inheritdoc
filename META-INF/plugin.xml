@@ -1,17 +1,29 @@
 <idea-plugin version="2">
   <id>com.thanosp.phpstorm.inheritdoc</id>
-  <name>PHP inheritDoc purger</name>
-  <version>1.1</version>
-  <vendor email="zinbiel@gmail.com" url="http://www.thanosp.com">Thanosp</vendor>
+  <name>PHP inheritDoc helper</name>
+  <version>1.2</version>
+  <vendor email="zinbiel@gmail.com" url="https://github.com/thanosp/phpstorm-inheritdoc">Thanosp</vendor>
 
   <description><![CDATA[
-      Purges PHP inheritDoc docblocks in favor of the actual text
+      Folds inheritDoc docblocks and shows the inherited text instead.<br/>
+      Can also purge inheritDoc's in favor of the inherited text
     ]]></description>
 
   <change-notes><![CDATA[
-      This plugin should be virtually replacing inheritDoc tags and showing the parent text.<br/>
-      Until then, it will be removing @inheritDoc and replacing with the text.<br/>
-      Long live humans.
+      <strong>1.2</strong>: <br/>
+      <ul>
+      <li>Added code folding. A bit quirky as it clashes with the comment folding and does not show up in as many lines
+      as it should</li>
+      </ul>
+      <strong>1.1</strong>: <br/>
+      <ul>
+      <li>Made @inheritDoc tags show as errors and added an inspect and fixer for them</li>
+      </ul>
+      <strong>1.0</strong>: <br/>
+      <ul>
+      <li>Humans live under the tyranny of evil unreadable @inheritDoc tags</li>
+      </ul>
+      </p>
     ]]>
   </change-notes>
 
@@ -35,6 +47,8 @@
           <className>com.thanosp.phpstorm.inheritdoc.InheritDocIntention</className>
           <category>PHPDoc</category>
       </intentionAction>
+      <lang.foldingBuilder language="PHP"
+               implementationClass="com.thanosp.phpstorm.inheritdoc.InheritDocFoldingBuilder"/>
   </extensions>
 
   <application-components>
