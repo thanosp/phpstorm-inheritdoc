@@ -40,8 +40,8 @@
       <localInspection groupPath="PHP"
                        shortName="InheritDocInspection"
                        displayName="InheritDoc text"
-                       groupName="DocBlock"
-                       enabledByDefault="true" level="ERROR"
+                       groupName="PHPDoc"
+                       enabledByDefault="true" level="WEAK WARNING"
                        implementationClass="com.thanosp.phpstorm.inheritdoc.InheritDocInspection"/>
       <intentionAction>
           <className>com.thanosp.phpstorm.inheritdoc.InheritDocIntention</className>
