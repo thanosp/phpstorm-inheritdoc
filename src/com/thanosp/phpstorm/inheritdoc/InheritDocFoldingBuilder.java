@@ -19,22 +19,20 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.List;
 
 public class InheritDocFoldingBuilder extends FoldingBuilderEx {
     @NotNull
     @Override
-    public FoldingDescriptor[] buildFoldRegions(PsiElement psiElement, Document document, boolean b) {
+    public FoldingDescriptor[] buildFoldRegions(@NotNull PsiElement psiElement, @NotNull Document document, boolean b) {
         if (!(psiElement instanceof PhpFile)) {
             return new FoldingDescriptor[0];
         }
         ArrayList descriptors = new ArrayList();
         Collection phpDocs = PsiTreeUtil.findChildrenOfType(psiElement, PhpDocCommentImpl.class);
-        Iterator i$ = phpDocs.iterator();
 
-        while (i$.hasNext()) {
-            PhpDocCommentImpl phpDoc = (PhpDocCommentImpl) i$.next();
+        for (Object phpDoc1 : phpDocs) {
+            PhpDocCommentImpl phpDoc = (PhpDocCommentImpl) phpDoc1;
             this.attachBlockShortcuts(descriptors, phpDoc);
         }
 
@@ -88,10 +86,8 @@ public class InheritDocFoldingBuilder extends FoldingBuilderEx {
 
         String commentString = null;
         if (results.size() == 1 && superMember.getDocComment() != null) {
-            commentString = superMember.getDocComment().getText();
+            commentString = superMember.getDocComment().getText().replaceAll("\\s+", " ");
         }
-
-        commentString = commentString.replaceAll("\\s+", " ");
 
         return commentString;
     }
