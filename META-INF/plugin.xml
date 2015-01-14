@@ -1,7 +1,7 @@
 <idea-plugin version="2">
   <id>com.thanosp.phpstorm.inheritdoc</id>
   <name>PHP inheritDoc helper</name>
-  <version>1.2</version>
+  <version>1.2.1</version>
   <vendor email="zinbiel@gmail.com" url="https://github.com/thanosp/phpstorm-inheritdoc">Thanosp</vendor>
 
   <description><![CDATA[
@@ -10,6 +10,10 @@
     ]]></description>
 
   <change-notes><![CDATA[
+      <strong>1.2.1</strong>: <br/>
+      <ul>
+      <li>Changed inspection severity to weak warning and moved to the existing PHPDoc inspection group</li>
+      </ul>
       <strong>1.2</strong>: <br/>
       <ul>
       <li>Added code folding. A bit quirky as it clashes with the comment folding and does not show up in as many lines
