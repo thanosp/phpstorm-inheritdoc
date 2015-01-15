@@ -46,10 +46,11 @@ public class InheritDocFoldingBuilder extends FoldingBuilderEx {
             return;
         }
 
-        TextRange range = new TextRange(
-                phpDocComment.getTextRange().getStartOffset() + 1,
-                phpDocComment.getTextRange().getEndOffset() - 1
-        );
+        int docPosition = phpDocComment.getTextRange().getStartOffset();
+        int positionInDocBlock = phpDocComment.getText().toLowerCase().indexOf("{@inheritdoc}");
+        int position = docPosition + positionInDocBlock;
+
+        TextRange range = new TextRange(position, position + 13);
 
         descriptors.add(new FoldingDescriptor(phpDocComment.getNode(), range) {
             @Nullable
@@ -82,14 +83,25 @@ public class InheritDocFoldingBuilder extends FoldingBuilderEx {
             return null;
         }
 
-        PhpNamedElement superMember = (PhpNamedElement) results.get(0);
+        for (Object result : results) {
 
-        String commentString = null;
-        if (results.size() == 1 && superMember.getDocComment() != null) {
-            commentString = superMember.getDocComment().getText().replaceAll("\\s+", " ");
+            PhpNamedElement superMember = (PhpNamedElement) result;
+
+            String commentString;
+            if (superMember.isValid() && superMember.getDocComment() != null) {
+                commentString = superMember.getDocComment().getText().replaceAll("\\s+", " ");
+                commentString = commentString.replaceAll("/\\*+", "");
+                commentString = commentString.replaceAll("\\*/", "");
+                commentString = commentString.replaceAll("^\\s\\*?", "");
+                commentString = commentString.replaceAll("\\s+\\*[\\s\\*]?\\s", " * ");
+                commentString = commentString.trim();
+                return commentString;
+            }
+
         }
 
-        return commentString;
+        // no valid supermember found
+        return null;
     }
 
 

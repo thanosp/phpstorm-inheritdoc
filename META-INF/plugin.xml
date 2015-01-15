@@ -10,6 +10,10 @@
     ]]></description>
 
   <change-notes><![CDATA[
+      <strong>1.3</strong>: <br/>
+      <ul>
+      <li>Added inline folding. Inheritdoc may now be actually used to extend documentation</li>
+      </ul>
       <strong>1.2.2</strong>: <br/>
       <ul>
       <li>Bugfix for error building initial foldings</li>
