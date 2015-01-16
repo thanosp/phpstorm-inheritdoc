@@ -13,6 +13,7 @@
       <strong>1.3</strong>: <br/>
       <ul>
       <li>Added inline folding. Inheritdoc may now be actually used to extend documentation</li>
+      <li>Added a second fix of completely removing the docblock</li>
       </ul>
       <strong>1.2.2</strong>: <br/>
       <ul>

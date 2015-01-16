@@ -37,11 +37,15 @@ public class InheritDocInspection extends PhpInspection {
             return;
         }
 
-        LocalQuickFix[] fixes = new LocalQuickFix[]{InheritDocQuickFix.INSTANCE};
+        LocalQuickFix[] fixes = new LocalQuickFix[]{
+                InheritDocQuickReplaceFix.INSTANCE,
+                InheritDocQuickRemoveFix.INSTANCE
+        };
         holder.registerProblem(
             nameNode.getPsi(),
-            "Uses inheritDoc",
-            fixes
+            "Uses inheritDoc which is only readable by documentation tools and is obsolete unless combined with new text",
+            fixes[0],
+            fixes[1]
         );
     }
 

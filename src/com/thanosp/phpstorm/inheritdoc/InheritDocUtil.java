@@ -14,7 +14,7 @@ import java.util.ArrayList;
 
 public class InheritDocUtil {
 
-    public static void fixInheritDocForNamedElement(final PhpNamedElement phpNamedElement)
+    public static void fixInheritDocForNamedElement(final PhpNamedElement phpNamedElement, final boolean replace)
     {
         // no named parent or not doc block
         if (phpNamedElement == null || phpNamedElement.getDocComment() == null) {
@@ -46,11 +46,22 @@ public class InheritDocUtil {
                 // delete the inheritdoc to start with. we'll replace or just leave blank
                 phpNamedElement.getDocComment().delete();
 
-                PhpNamedElement superMember = (PhpNamedElement) results.get(0);
+                if (! replace) {
+                    return;
+                }
 
                 String commentString = "";
-                if (results.size() == 1 && superMember.getDocComment() != null) {
-                    commentString = superMember.getDocComment().getText();
+
+                for (Object result : results) {
+                    PhpNamedElement superMember = (PhpNamedElement) result;
+
+                    if (superMember.isValid() && superMember.getDocComment() != null) {
+                        commentString = superMember.getDocComment().getText();
+                    }
+
+                    if (commentString.length() > 0) {
+                        break;
+                    }
                 }
 
                 // no parent comment. leave

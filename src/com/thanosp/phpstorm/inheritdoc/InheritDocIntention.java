@@ -14,7 +14,8 @@ public class InheritDocIntention extends PsiElementBaseIntentionAction {
     public void invoke(Project project, Editor editor, PsiElement psiElement) throws IncorrectOperationException {
 
         final PhpNamedElement phpNamedElement = PsiTreeUtil.getParentOfType(psiElement, PhpNamedElement.class);
-        InheritDocUtil.fixInheritDocForNamedElement(phpNamedElement);
+        boolean replace = true;
+        InheritDocUtil.fixInheritDocForNamedElement(phpNamedElement, replace);
     }
 
     @Override
