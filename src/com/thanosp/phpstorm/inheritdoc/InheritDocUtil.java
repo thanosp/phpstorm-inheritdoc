@@ -14,6 +14,62 @@ import java.util.ArrayList;
 
 public class InheritDocUtil {
 
+    public static boolean namedElementHasParentWithDoc(final PhpNamedElement phpNamedElement)
+    {
+        final ArrayList results = new ArrayList(10);
+        if (phpNamedElement instanceof Method) {
+            PhpClassHierarchyUtils.processSuperMembers((PhpClassMember) phpNamedElement, new PhpClassHierarchyUtils.HierarchyClassMemberProcessor() {
+                public boolean process(PhpClassMember method, PhpClass subClass, PhpClass baseClass) {
+                    results.add(method);
+                    return true;
+                }
+            });
+        } else if (phpNamedElement instanceof PhpClass) {
+            results.addAll(PhpClassHierarchyUtils.getImmediateParents((PhpClass)phpNamedElement));
+        }
+
+        String commentString = "";
+
+        for (Object result : results) {
+            PhpNamedElement superMember = (PhpNamedElement) result;
+
+            if (superMember.isValid() && superMember.getDocComment() != null) {
+                commentString = superMember.getDocComment().getText();
+            }
+
+            if (commentString.length() > 0) {
+                break;
+            }
+        }
+
+        return (commentString.length() > 0);
+    }
+
+    public static void fixMissingInheritDocForNamedElement(final PhpNamedElement phpNamedElement)
+    {
+        if (phpNamedElement.getDocComment() != null) {
+            return;
+        }
+
+        // write a new docblock with inheritdoc
+        new WriteCommandAction.Simple(phpNamedElement.getProject(), phpNamedElement.getContainingFile()) {
+            @Override
+            protected void run() throws Throwable {
+                String commentString = "/**\n * {@inheritDoc} \n*/";
+
+                PhpDocComment comment = PhpPsiElementFactory.createFromText(
+                        phpNamedElement.getProject(),
+                        PhpDocComment.class,
+                        commentString
+                );
+
+                PhpCodeEditUtil.insertDocCommentBefore(phpNamedElement, comment);
+
+            }
+        }.execute();
+
+    }
+
     public static void fixInheritDocForNamedElement(final PhpNamedElement phpNamedElement, final boolean replace)
     {
         // no named parent or not doc block

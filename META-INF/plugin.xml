@@ -1,15 +1,22 @@
 <idea-plugin version="2">
   <id>com.thanosp.phpstorm.inheritdoc</id>
   <name>PHP inheritDoc helper</name>
-  <version>1.3.1</version>
+  <version>1.4.0</version>
   <vendor email="zinbiel@gmail.com" url="https://github.com/thanosp/phpstorm-inheritdoc">Thanosp</vendor>
 
   <description><![CDATA[
       Folds inheritDoc docblocks and shows the inherited text instead.<br/>
-      Can also purge inheritDoc's in favor of the inherited text
+      Can suggest to add inheritDoc if a docblock is missing but a parent doc is found.<br/>
+      Can also purge inheritDoc's in favor of the inherited text.
     ]]></description>
 
   <change-notes><![CDATA[
+      <strong>1.4.0</strong>: <br/>
+      <ul>
+      <li>Added new inspection to complain about a missing inheritDoc when a docblock is missing completely</li>
+      <li>Note: The plugin inspections will now warn for both using and not using inheritDoc. You can disable the inspections
+       you don't want via the same popup action menu</li>
+      </ul>
       <strong>1.3.1</strong>: <br/>
       <ul>
       <li>Made folding look deeper into inherited classes for the parent documentation</li>
@@ -60,10 +67,12 @@
                        groupName="PHPDoc"
                        enabledByDefault="true" level="WEAK WARNING"
                        implementationClass="com.thanosp.phpstorm.inheritdoc.InheritDocInspection"/>
-      <intentionAction>
-          <className>com.thanosp.phpstorm.inheritdoc.InheritDocIntention</className>
-          <category>PHPDoc</category>
-      </intentionAction>
+      <localInspection groupPath="PHP"
+                       shortName="MissingInheritDocInspection"
+                       displayName="Missing inheritDoc"
+                       groupName="PHPDoc"
+                       enabledByDefault="true" level="WEAK WARNING"
+                       implementationClass="com.thanosp.phpstorm.inheritdoc.MissingInheritDocInspection"/>
       <lang.foldingBuilder language="PHP"
                implementationClass="com.thanosp.phpstorm.inheritdoc.InheritDocFoldingBuilder"/>
   </extensions>
