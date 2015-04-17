@@ -89,6 +89,9 @@ public class InheritDocFoldingBuilder extends FoldingBuilderEx {
 
             String commentString;
             if (superMember.isValid() && superMember.getDocComment() != null) {
+                if (superMember.getDocComment().hasInheritDocTag()) {
+                    return this.getPlaceholderTextForCommentImpl((PhpDocCommentImpl) superMember.getDocComment());
+                }
                 commentString = superMember.getDocComment().getText().replaceAll("\\s+", " ");
                 commentString = commentString.replaceAll("/\\*+", "");
                 commentString = commentString.replaceAll("\\*/", "");
