@@ -63,7 +63,7 @@ public class InheritDocUtil {
                         commentString
                 );
 
-                PhpCodeEditUtil.insertDocCommentBefore(phpNamedElement, comment);
+                PhpCodeEditUtil.insertDocCommentBeforeAndGetTextRange(phpNamedElement, comment);
 
             }
         }.execute();
@@ -131,7 +131,7 @@ public class InheritDocUtil {
                         commentString
                 );
 
-                PhpCodeEditUtil.insertDocCommentBefore(phpNamedElement, comment);
+                PhpCodeEditUtil.insertDocCommentBeforeAndGetTextRange(phpNamedElement, comment);
 
             }
         }.execute();
