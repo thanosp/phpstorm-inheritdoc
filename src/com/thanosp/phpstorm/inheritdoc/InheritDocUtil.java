@@ -8,21 +8,19 @@ import com.jetbrains.php.lang.psi.PhpPsiElementFactory;
 import com.jetbrains.php.lang.psi.elements.Method;
 import com.jetbrains.php.lang.psi.elements.PhpClass;
 import com.jetbrains.php.lang.psi.elements.PhpClassMember;
+import com.jetbrains.php.lang.psi.elements.PhpElementWithModifier;
 import com.jetbrains.php.lang.psi.elements.PhpNamedElement;
 
 import java.util.ArrayList;
 
-public class InheritDocUtil {
-
-    public static boolean namedElementHasParentWithDoc(final PhpNamedElement phpNamedElement)
+class InheritDocUtil {
+    static boolean namedElementHasParentWithDoc(final PhpNamedElement phpNamedElement)
     {
-        final ArrayList results = new ArrayList(10);
+        final ArrayList<PhpElementWithModifier> results = new ArrayList<>(10);
         if (phpNamedElement instanceof Method) {
-            PhpClassHierarchyUtils.processSuperMembers((PhpClassMember) phpNamedElement, new PhpClassHierarchyUtils.HierarchyClassMemberProcessor() {
-                public boolean process(PhpClassMember method, PhpClass subClass, PhpClass baseClass) {
-                    results.add(method);
-                    return true;
-                }
+            PhpClassHierarchyUtils.processSuperMembers((PhpClassMember) phpNamedElement, (method, subClass, baseClass) -> {
+                results.add(method);
+                return true;
             });
         } else if (phpNamedElement instanceof PhpClass) {
             results.addAll(PhpClassHierarchyUtils.getImmediateParents((PhpClass)phpNamedElement));
@@ -45,7 +43,7 @@ public class InheritDocUtil {
         return (commentString.length() > 0);
     }
 
-    public static void fixMissingInheritDocForNamedElement(final PhpNamedElement phpNamedElement)
+    static void fixMissingInheritDocForNamedElement(final PhpNamedElement phpNamedElement)
     {
         if (phpNamedElement.getDocComment() != null) {
             return;
@@ -63,77 +61,29 @@ public class InheritDocUtil {
                         commentString
                 );
 
-                PhpCodeEditUtil.insertDocCommentBeforeAndGetTextRange(phpNamedElement, comment);
+                if (comment == null) {
+                    return;
+                }
 
+                PhpCodeEditUtil.insertDocCommentBeforeAndGetTextRange(phpNamedElement, comment);
             }
         }.execute();
-
     }
 
-    public static void fixInheritDocForNamedElement(final PhpNamedElement phpNamedElement, final boolean replace)
+    static void replaceDocblockForNamedElement(final PhpNamedElement phpNamedElement)
     {
-        // no named parent or not doc block
-        if (phpNamedElement == null || phpNamedElement.getDocComment() == null) {
-            return;
-        }
-
-        // no inheritDoc
-        if (! phpNamedElement.getDocComment().hasInheritDocTag()) {
-            return;
-        }
-
-        // inheritDoc must be purged
+        // write a new docblock with inheritdoc
         new WriteCommandAction.Simple(phpNamedElement.getProject(), phpNamedElement.getContainingFile()) {
             @Override
             protected void run() throws Throwable {
-
-                final ArrayList results = new ArrayList(1);
-                if(phpNamedElement instanceof Method) {
-                    PhpClassHierarchyUtils.processSuperMembers((PhpClassMember) phpNamedElement, new PhpClassHierarchyUtils.HierarchyClassMemberProcessor() {
-                        public boolean process(PhpClassMember method, PhpClass subClass, PhpClass baseClass) {
-                            results.add(method);
-                            return true;
-                        }
-                    });
-                } else if(phpNamedElement instanceof PhpClass) {
-                    results.addAll(PhpClassHierarchyUtils.getImmediateParents((PhpClass)phpNamedElement));
-                }
-
-                // delete the inheritdoc to start with. we'll replace or just leave blank
-                phpNamedElement.getDocComment().delete();
-
-                if (! replace) {
+                PhpDocComment docComment = phpNamedElement.getDocComment();
+                if (docComment == null) {
                     return;
                 }
-
-                String commentString = "";
-
-                for (Object result : results) {
-                    PhpNamedElement superMember = (PhpNamedElement) result;
-
-                    if (superMember.isValid() && superMember.getDocComment() != null) {
-                        commentString = superMember.getDocComment().getText();
-                    }
-
-                    if (commentString.length() > 0) {
-                        break;
-                    }
-                }
-
-                // no parent comment. leave
-                if (commentString.length() == 0) {
-                    return;
-                }
-
-                PhpDocComment comment = PhpPsiElementFactory.createFromText(
-                        phpNamedElement.getProject(),
-                        PhpDocComment.class,
-                        commentString
-                );
-
-                PhpCodeEditUtil.insertDocCommentBeforeAndGetTextRange(phpNamedElement, comment);
-
+                docComment.delete();
             }
         }.execute();
+
+        InheritDocUtil.fixMissingInheritDocForNamedElement(phpNamedElement);
     }
 }

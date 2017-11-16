@@ -8,7 +8,7 @@ import com.jetbrains.php.lang.psi.elements.PhpNamedElement;
 import org.jetbrains.annotations.NotNull;
 
 public class MissingInheritDocQuickAddFix implements LocalQuickFix {
-    public static final MissingInheritDocQuickAddFix INSTANCE = new MissingInheritDocQuickAddFix();
+    static final MissingInheritDocQuickAddFix INSTANCE = new MissingInheritDocQuickAddFix();
     @NotNull
     @Override
     public String getName() {

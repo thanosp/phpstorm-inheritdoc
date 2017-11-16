@@ -1,16 +1,23 @@
-<idea-plugin version="2">
+<idea-plugin>
   <id>com.thanosp.phpstorm.inheritdoc</id>
   <name>PHP inheritDoc helper</name>
-  <version>1.4.0</version>
+  <version>1.5.0</version>
   <vendor email="zinbiel@gmail.com" url="https://github.com/thanosp/phpstorm-inheritdoc">Thanosp</vendor>
 
   <description><![CDATA[
       Folds inheritDoc docblocks and shows the inherited text instead.<br/>
       Can suggest to add inheritDoc if a docblock is missing but a parent doc is found.<br/>
-      Can also purge inheritDoc's in favor of the inherited text.
+      Can also replace existing docblocks with inheritdoc blocks.
     ]]></description>
 
   <change-notes><![CDATA[
+      <strong>1.5.0</strong>: <br/>
+      <ul>
+      <li>Added inspection for docblocks that could use inheritdoc and a fix that replaces the docblock</li>
+      <li>Decreased severity for inspections to information-level</li>
+      <li>Removed inspection that complained for using inheritdoc's</li>
+      <li>Removed deprecated call [@wbars]</li>
+      </ul>
       <strong>1.4.0</strong>: <br/>
       <ul>
       <li>Added new inspection to complain about a missing inheritDoc when a docblock is missing completely</li>
@@ -52,7 +59,7 @@
   </change-notes>
 
   <!-- please see http://confluence.jetbrains.com/display/IDEADEV/Build+Number+Ranges for description -->
-  <idea-version since-build="131"/>
+  <idea-version since-build="173.3475"/>
 
   <!-- please see http://confluence.jetbrains.com/display/IDEADEV/Plugin+Compatibility+with+IntelliJ+Platform+Products
        on how to target different products -->
@@ -62,16 +69,10 @@
 
   <extensions defaultExtensionNs="com.intellij">
       <localInspection groupPath="PHP"
-                       shortName="InheritDocInspection"
-                       displayName="InheritDoc text"
-                       groupName="PHPDoc"
-                       enabledByDefault="true" level="WEAK WARNING"
-                       implementationClass="com.thanosp.phpstorm.inheritdoc.InheritDocInspection"/>
-      <localInspection groupPath="PHP"
                        shortName="MissingInheritDocInspection"
                        displayName="Missing inheritDoc"
                        groupName="PHPDoc"
-                       enabledByDefault="true" level="WEAK WARNING"
+                       enabledByDefault="true" level="INFORMATION"
                        implementationClass="com.thanosp.phpstorm.inheritdoc.MissingInheritDocInspection"/>
       <lang.foldingBuilder language="PHP"
                implementationClass="com.thanosp.phpstorm.inheritdoc.InheritDocFoldingBuilder"/>

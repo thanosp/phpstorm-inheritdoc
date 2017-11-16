@@ -7,12 +7,12 @@ import com.intellij.psi.util.PsiTreeUtil;
 import com.jetbrains.php.lang.psi.elements.PhpNamedElement;
 import org.jetbrains.annotations.NotNull;
 
-public class InheritDocQuickReplaceFix implements LocalQuickFix {
-    public static final InheritDocQuickReplaceFix INSTANCE = new InheritDocQuickReplaceFix();
+public class NonInheritDocQuickReplaceFix implements LocalQuickFix {
+    static final NonInheritDocQuickReplaceFix INSTANCE = new NonInheritDocQuickReplaceFix();
     @NotNull
     @Override
     public String getName() {
-        return "1. Replace inheritDoc with the inherited docblock";
+        return "Replace docblock with inheritDoc";
     }
 
     @NotNull
@@ -29,7 +29,6 @@ public class InheritDocQuickReplaceFix implements LocalQuickFix {
                 PhpNamedElement.class
         );
 
-        boolean replace = true;
-        InheritDocUtil.fixInheritDocForNamedElement(phpNamedElement, replace);
+        InheritDocUtil.replaceDocblockForNamedElement(phpNamedElement);
     }
 }

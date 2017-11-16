@@ -13,6 +13,7 @@ import com.jetbrains.php.lang.psi.PhpFile;
 import com.jetbrains.php.lang.psi.elements.Method;
 import com.jetbrains.php.lang.psi.elements.PhpClass;
 import com.jetbrains.php.lang.psi.elements.PhpClassMember;
+import com.jetbrains.php.lang.psi.elements.PhpElementWithModifier;
 import com.jetbrains.php.lang.psi.elements.PhpNamedElement;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -28,15 +29,15 @@ public class InheritDocFoldingBuilder extends FoldingBuilderEx {
         if (!(psiElement instanceof PhpFile)) {
             return new FoldingDescriptor[0];
         }
-        ArrayList descriptors = new ArrayList();
-        Collection phpDocs = PsiTreeUtil.findChildrenOfType(psiElement, PhpDocCommentImpl.class);
+        List<FoldingDescriptor> descriptors = new ArrayList<>();
+        Collection<PhpDocCommentImpl> phpDocs = PsiTreeUtil.findChildrenOfType(psiElement, PhpDocCommentImpl.class);
 
         for (Object phpDoc1 : phpDocs) {
             PhpDocCommentImpl phpDoc = (PhpDocCommentImpl) phpDoc1;
             this.attachBlockShortcuts(descriptors, phpDoc);
         }
 
-        return (FoldingDescriptor[])descriptors.toArray(new FoldingDescriptor[descriptors.size()]);
+        return descriptors.toArray(new FoldingDescriptor[descriptors.size()]);
     }
 
     private void attachBlockShortcuts(List<FoldingDescriptor> descriptors, PhpDocCommentImpl phpDocComment) {
@@ -53,7 +54,7 @@ public class InheritDocFoldingBuilder extends FoldingBuilderEx {
         TextRange range = new TextRange(position, position + 13);
 
         descriptors.add(new FoldingDescriptor(phpDocComment.getNode(), range) {
-            @Nullable
+            @NotNull
             public String getPlaceholderText() {
                 return comment;
             }
@@ -66,14 +67,12 @@ public class InheritDocFoldingBuilder extends FoldingBuilderEx {
         if (! psiElement.hasInheritDocTag()) {
             return null;
         }
-        final ArrayList results = new ArrayList(1);
+        final ArrayList<PhpElementWithModifier> results = new ArrayList<>(1);
 
         if(phpNamedElement instanceof Method) {
-            PhpClassHierarchyUtils.processSuperMembers((PhpClassMember) phpNamedElement, new PhpClassHierarchyUtils.HierarchyClassMemberProcessor() {
-                public boolean process(PhpClassMember method, PhpClass subClass, PhpClass baseClass) {
-                    results.add(method);
-                    return true;
-                }
+            PhpClassHierarchyUtils.processSuperMembers((PhpClassMember) phpNamedElement, (method, subClass, baseClass) -> {
+                results.add(method);
+                return true;
             });
         } else if(phpNamedElement instanceof PhpClass) {
             results.addAll(PhpClassHierarchyUtils.getImmediateParents((PhpClass)phpNamedElement));
