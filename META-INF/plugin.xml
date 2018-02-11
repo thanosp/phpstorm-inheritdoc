@@ -1,7 +1,7 @@
 <idea-plugin>
   <id>com.thanosp.phpstorm.inheritdoc</id>
   <name>PHP inheritDoc helper</name>
-  <version>1.5.0</version>
+  <version>1.5.1</version>
   <vendor email="zinbiel@gmail.com" url="https://github.com/thanosp/phpstorm-inheritdoc">Thanosp</vendor>
 
   <description><![CDATA[
@@ -11,6 +11,10 @@
     ]]></description>
 
   <change-notes><![CDATA[
+      <strong>1.5.1</strong>: <br/>
+      <ul>
+      <li>Docblocks will now combine better with parent docblocks</li>
+      </ul>
       <strong>1.5.0</strong>: <br/>
       <ul>
       <li>Added inspection for docblocks that could use inheritdoc and a fix that replaces the docblock</li>

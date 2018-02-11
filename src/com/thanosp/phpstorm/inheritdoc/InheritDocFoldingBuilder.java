@@ -23,36 +23,32 @@ import java.util.Collection;
 import java.util.List;
 
 public class InheritDocFoldingBuilder extends FoldingBuilderEx {
+    private static final int INHERITANCE_RECURSION_LIMIT = 10;
+
     @NotNull
     @Override
     public FoldingDescriptor[] buildFoldRegions(@NotNull PsiElement psiElement, @NotNull Document document, boolean b) {
+        // only do this for php files
         if (!(psiElement instanceof PhpFile)) {
             return new FoldingDescriptor[0];
         }
         List<FoldingDescriptor> descriptors = new ArrayList<>();
-        Collection<PhpDocCommentImpl> phpDocs = PsiTreeUtil.findChildrenOfType(psiElement, PhpDocCommentImpl.class);
+        Collection<PhpDocCommentImpl> filePhpDocs = PsiTreeUtil.findChildrenOfType(psiElement, PhpDocCommentImpl.class);
 
-        for (Object phpDoc1 : phpDocs) {
-            PhpDocCommentImpl phpDoc = (PhpDocCommentImpl) phpDoc1;
-            this.attachBlockShortcuts(descriptors, phpDoc);
-        }
+        filePhpDocs.forEach(phpDoc -> attachFolding(descriptors, phpDoc));
 
         return descriptors.toArray(new FoldingDescriptor[descriptors.size()]);
     }
 
-    private void attachBlockShortcuts(List<FoldingDescriptor> descriptors, PhpDocCommentImpl phpDocComment) {
-        final String comment = this.getPlaceholderTextForCommentImpl(phpDocComment);
+    private void attachFolding(List<FoldingDescriptor> descriptors, PhpDocCommentImpl phpDocComment) {
+        final String comment = this.calculateInheritDocValue(phpDocComment);
 
+        // don't attach if there was no valid doc value calculated
         if (null == comment) {
             return;
         }
 
-        int docPosition = phpDocComment.getTextRange().getStartOffset();
-        int positionInDocBlock = phpDocComment.getText().toLowerCase().indexOf("{@inheritdoc}");
-        int position = docPosition + positionInDocBlock;
-
-        TextRange range = new TextRange(position, position + 13);
-
+        TextRange range = getInheritDocTextRange(phpDocComment);
         descriptors.add(new FoldingDescriptor(phpDocComment.getNode(), range) {
             @NotNull
             public String getPlaceholderText() {
@@ -61,7 +57,38 @@ public class InheritDocFoldingBuilder extends FoldingBuilderEx {
         });
     }
 
-    private String getPlaceholderTextForCommentImpl(PhpDocCommentImpl psiElement) {
+    private String calculateInheritDocValue(PhpDocCommentImpl phpDocComment) {
+        return calculateInheritDocValue(phpDocComment, 0);
+    }
+
+    /**
+     * Calculates the range to replace the inheritdoc in the given comment
+     * @param phpDocComment The text range for accurate folding of the inheritdoc
+     * @return TextRange
+     */
+    @NotNull
+    private TextRange getInheritDocTextRange(PhpDocCommentImpl phpDocComment) {
+        int docPosition = phpDocComment.getTextRange().getStartOffset();
+        String normalizedDocBlock = phpDocComment.getText().toLowerCase();
+        // inheritdoc might be wrapped in curly brackets
+        int positionInDocBlock = normalizedDocBlock.contains("{@inheritdoc}") ?
+                normalizedDocBlock.indexOf("{@inheritdoc}") : normalizedDocBlock.indexOf("@inheritdoc");
+        int position = docPosition + positionInDocBlock;
+
+        int inheritDocLength = normalizedDocBlock.contains("{@inheritdoc}") ? 13 : 11;
+        return new TextRange(position, position + inheritDocLength);
+    }
+
+    /**
+     * Calculates and returns the inheritdoc final value for the given element or returns null if there's nothing to do
+     * @param psiElement The element to compute the placeholder for
+     * @param level      The level of
+     * @return String|null
+     */
+    private String calculateInheritDocValue(PhpDocCommentImpl psiElement, int level) {
+        if (level > INHERITANCE_RECURSION_LIMIT) {
+            return null;
+        }
         PsiElement phpNamedElement = psiElement.getOwner();
 
         if (! psiElement.hasInheritDocTag()) {
@@ -69,11 +96,14 @@ public class InheritDocFoldingBuilder extends FoldingBuilderEx {
         }
         final ArrayList<PhpElementWithModifier> results = new ArrayList<>(1);
 
-        if(phpNamedElement instanceof Method) {
-            PhpClassHierarchyUtils.processSuperMembers((PhpClassMember) phpNamedElement, (method, subClass, baseClass) -> {
-                results.add(method);
-                return true;
-            });
+        if (phpNamedElement instanceof Method) {
+            PhpClassHierarchyUtils.processSuperMembers(
+                    (PhpClassMember) phpNamedElement,
+                    (method, subClass, baseClass) -> {
+                        results.add(method);
+                        return true;
+                    }
+            );
         } else if(phpNamedElement instanceof PhpClass) {
             results.addAll(PhpClassHierarchyUtils.getImmediateParents((PhpClass)phpNamedElement));
         }
@@ -82,22 +112,31 @@ public class InheritDocFoldingBuilder extends FoldingBuilderEx {
             return null;
         }
 
-        for (Object result : results) {
+        String currentDocBlock = psiElement.getText();
 
+        for (Object result : results) {
             PhpNamedElement superMember = (PhpNamedElement) result;
 
-            String commentString;
             if (superMember.isValid() && superMember.getDocComment() != null) {
-                if (superMember.getDocComment().hasInheritDocTag()) {
-                    return this.getPlaceholderTextForCommentImpl((PhpDocCommentImpl) superMember.getDocComment());
+                // calculate the parent doc value
+                String parentComment = superMember.getDocComment().hasInheritDocTag() ?
+                        this.calculateInheritDocValue((PhpDocCommentImpl) superMember.getDocComment(), level + 1) :
+                        superMember.getDocComment().getText();
+                if (parentComment == null) {
+                    return null;
                 }
-                commentString = superMember.getDocComment().getText().replaceAll("\\s+", " ");
-                commentString = commentString.replaceAll("/\\*+", "");
-                commentString = commentString.replaceAll("\\*/", "");
-                commentString = commentString.replaceAll("^\\s\\*?", "");
-                commentString = commentString.replaceAll("\\s+\\*[\\s\\*]?\\s", " * ");
-                commentString = commentString.trim();
-                return commentString;
+                String newComment = currentDocBlock.replaceFirst("(?i)\\{?@inheritdoc\\}?", parentComment);
+                // remove starting doc tags
+                newComment = newComment.replaceAll("/\\*+", "");
+                // remove ending doc tags
+                newComment = newComment.replaceAll("\\*/", "");
+                // normalize whitespace/asterisks for readability
+                newComment = newComment.replaceAll("[\\s\\*]{3,}", " * ");
+                // remove leading and trailing whitespace and asterisks
+                newComment = newComment.replaceAll("^[\\s\\*]+", "");
+                newComment = newComment.replaceAll("[\\s\\*]+$", "");
+
+                return newComment;
             }
 
         }
@@ -113,7 +152,7 @@ public class InheritDocFoldingBuilder extends FoldingBuilderEx {
         if (! (astNode.getPsi() instanceof PhpDocCommentImpl)) {
             return "...";
         }
-        return this.getPlaceholderTextForCommentImpl((PhpDocCommentImpl) astNode.getPsi());
+        return this.calculateInheritDocValue((PhpDocCommentImpl) astNode.getPsi());
     }
 
     @Override
