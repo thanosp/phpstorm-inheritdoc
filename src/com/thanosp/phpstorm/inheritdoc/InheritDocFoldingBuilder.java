@@ -21,6 +21,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.regex.Matcher;
 
 public class InheritDocFoldingBuilder extends FoldingBuilderEx {
     private static final int INHERITANCE_RECURSION_LIMIT = 10;
@@ -125,7 +126,10 @@ public class InheritDocFoldingBuilder extends FoldingBuilderEx {
                 if (parentComment == null) {
                     return null;
                 }
-                String newComment = currentDocBlock.replaceFirst("(?i)\\{?@inheritdoc\\}?", parentComment);
+                String newComment = currentDocBlock.replaceFirst(
+                        "(?i)\\{?@inheritdoc\\}?",
+                        Matcher.quoteReplacement(parentComment)
+                );
                 // remove starting doc tags
                 newComment = newComment.replaceAll("/\\*+", "");
                 // remove ending doc tags
